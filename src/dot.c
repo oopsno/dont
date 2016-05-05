@@ -30,7 +30,7 @@ compose_fn_t *compose_fn_new() {
 }
 
 void compose_fn_delete(compose_fn_t *fn) {
-  free(fn->wrapped);
+  free(fn->scope);
   free(fn->functions);
   free(fn);
 }
@@ -64,7 +64,7 @@ typedef struct {
   void *address;
 } symbol_table_t;
 
-static void *compile(const char *code, const symbol_table_t *symbols, const int symbol_counts) {
+static int compile(compose_fn_t *fn, const char *code, const symbol_table_t *symbols, const int symbol_counts) {
   TCCState *state = tcc_new();
   tcc_set_output_type(state, TCC_OUTPUT_MEMORY);
   int err = tcc_compile_string(state, code);
@@ -75,12 +75,12 @@ static void *compile(const char *code, const symbol_table_t *symbols, const int 
   for (int i = 0; i < symbol_counts; ++i) {
     tcc_add_symbol(state, symbols[i].name, symbols[i].address);
   }
-  int func_size = tcc_relocate(state, NULL);
-  void *func_mem = malloc((size_t) func_size);
-  tcc_relocate(state, func_mem);
-  void *func = tcc_get_symbol(state, "wrapped");
+  int scope_size = tcc_relocate(state, NULL);
+  fn->scope = malloc((size_t) scope_size);
+  tcc_relocate(state, fn->scope);
+  fn->wrapped = tcc_get_symbol(state, "wrapped");
   tcc_delete(state);
-  return func;
+  return 0;
 }
 
 compose_fn_t *dot_compose(const char *rtype, const char *itype, void **functions) {
@@ -88,6 +88,6 @@ compose_fn_t *dot_compose(const char *rtype, const char *itype, void **functions
   fn->length = notnull_length(functions);
   fn->functions = copy_functions(functions, fn->length);
   const char *code = dot_codegen(rtype, itype, fn);
-  fn->wrapped = compile(code, NULL, 0);
+  compile(fn, code, NULL, 0);
   return fn;
 }

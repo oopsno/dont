@@ -12,9 +12,10 @@ int duo(int value) {
 int main() {
   typedef int (*proc_t)(int);
 
-  compose_fn_t *fn = dot_compose("int", "int", (void*[]){duo, succ, NULL});
-  int result = ((proc_t)(fn->wrapped))(3);
-  printf("duo(succ(3)) = %d\n", result);
-  compose_fn_delete(fn);
+  for (int value = 3; value < 10; ++value) {
+    compose_fn_t* fn = COMPOSE_NEW(int, int, duo, succ);
+    printf("duo(succ(%d)) = %d\n", value, COMPOSE_CALL(int, int, fn, value));
+    COMPOSE_FREE(fn);
+  }
   return 0;
 }

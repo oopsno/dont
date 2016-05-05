@@ -4,23 +4,27 @@
 #include <stdarg.h>
 #include <stddef.h>
 
+typedef void (*any_function_t)(void);
+
 typedef struct {
-  void *wrapped;
+  any_function_t wrapped;
+  void *scope;
   void **functions;
   size_t length;
 } compose_fn_t;
 
-compose_fn_t *dot_compose(const char * rtype, const char * itype, void **functions);
+compose_fn_t *dot_compose(const char *rtype, const char *itype, void **functions);
 
 void compose_fn_delete(compose_fn_t *);
 
 compose_fn_t *compose_fn_new();
 
-#define STRUCTUREP_TO_FNP(sp) (sp->wrapped)
+#define COMPOSE_NEW(rtype, itype, ...) \
+  (dot_compose(#rtype, #itype, (void*[]){__VA_ARGS__, NULL}))
 
-#define FNP_TO_STRUCTUREP(fp) ((compose_fn_t*)fp)
+#define COMPOSE_CALL(rtype, itype, sp, ...) (((rtype(*)(itype))(sp->wrapped))(__VA_ARGS__))
 
-#define COMPOSEFN(rtype, itype, fn) \
-  (((rtype*)(itype)) STRUCTUREP_TO_FNP(dot_compose(fn)))
+#define COMPOSE_FREE(fp) \
+  (compose_fn_delete(fp))
 
 #endif //DOT_C_DOT_H
