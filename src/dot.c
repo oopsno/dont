@@ -4,9 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libtcc.h>
-#include <dot.h>
-#include "common.h"
 #include "dot.h"
+#include "common.h"
 
 #if (defined(DOT_DEBUG))
 #include "composed_inner.h"
