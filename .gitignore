@@ -38,3 +38,9 @@ install_manifest.txt
 
 # Debug files
 *.dSYM/
+
+# Doxygen
+docs/
+
+# CLion
+.idea/
