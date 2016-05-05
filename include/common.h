@@ -1,16 +1,16 @@
-#ifndef DOT_C_COMMON_H
-#define DOT_C_COMMON_H
+#ifndef DONT_COMMON_H
+#define DONT_COMMON_H
 
-#if (!defined(NDEBUG) && !defined(DOT_DEBUG))
-#define DOT_DEBUG
+#if (!defined(NDEBUG) && !defined(DONT_DEBUG))
+#define DONT_DEBUG
 #endif
 
-#if (defined(DOT_DEBUG))
-#define DOT_PRIVATE
-#define DOT_PRIVATE_ENABLED 0
+#if (defined(DONT_DEBUG))
+#define DONT_PRIVATE
+#define DONT_PRIVATE_ENABLED 0
 #else
-#define DOT_PRIVATE static
-#define DOT_PRIVATE_ENABLED 1
+#define DONT_PRIVATE static
+#define DONT_PRIVATE_ENABLED 1
 #endif
 
 /**
@@ -21,4 +21,4 @@ typedef struct {
   void *address;    /**< the address of the symbol */
 } symbol_table_t;
 
-#endif //DOT_C_COMMON_H
+#endif //DONT_COMMON_H

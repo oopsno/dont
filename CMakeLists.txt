@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
-project(dot.c)
+project(dont)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 11)

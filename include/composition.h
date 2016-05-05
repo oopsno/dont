@@ -1,8 +1,8 @@
 /** @file
  * Function composition
  */
-#ifndef DOT_C_COMPOSITION_H
-#define DOT_C_COMPOSITION_H
+#ifndef DONT_COMPOSITION_H
+#define DONT_COMPOSITION_H
 
 #include <stdarg.h>
 #include <stddef.h>
@@ -82,4 +82,4 @@ void compose_fn_free(compose_fn_t *fn);
 }
 #endif
 
-#endif //DOT_C_COMPOSITION_H
+#endif //DONT_COMPOSITION_H

@@ -1,5 +1,6 @@
-# dot.c
-`dot.c` is a toy library supporting functional programming in C99, with test codes writes in `C++11`.
+# dont
+`dont` is a toy library supporting functional programming in C99, with test codes writes in `C++11`.
+The name `dont` means `DO NOT USE THIS LABRARY`
 
 ## Build
 You need 
@@ -7,7 +8,7 @@ You need
 + A compiler with full C99 support
 + libtcc
 
-to build `dot.c`. 
+to build `dont`. 
 
 ## Features
 
@@ -17,7 +18,7 @@ to build `dot.c`.
 
 ```c
 #include <stdio.h>
-#include <dot.h>
+#include <dont.h>
 
 int succ(int value) {
   return value + 1;

@@ -9,7 +9,7 @@
 #include "composition.h"
 #include "common.h"
 
-#if (defined(DOT_DEBUG))
+#if (defined(DONT_DEBUG))
 #include "composition_inner.h"
 #endif
 
@@ -23,7 +23,7 @@ extern "C" {
  * @param functions function pointers, always ends with NULL
  * @return length of `functions`, NULL excluded
  */
-DOT_PRIVATE size_t notnull_length(void **functions) {
+DONT_PRIVATE size_t notnull_length(void **functions) {
   size_t length = 0;
   if (functions != NULL) {
     while (*functions++ != NULL) {
@@ -42,7 +42,7 @@ DOT_PRIVATE size_t notnull_length(void **functions) {
  * @param length length of `functions`
  * @return duplication of `functions`
  */
-DOT_PRIVATE void **copy_functions(void **functions, size_t length) {
+DONT_PRIVATE void **copy_functions(void **functions, size_t length) {
   if (functions == NULL || length == 0) {
     return NULL;
   }
@@ -54,7 +54,7 @@ DOT_PRIVATE void **copy_functions(void **functions, size_t length) {
   return duplication;
 }
 
-DOT_PRIVATE compose_fn_t *compose_fn_alloc() {
+compose_fn_t *compose_fn_alloc() {
   compose_fn_t *fn = (compose_fn_t *) malloc(sizeof(compose_fn_t));
   fn->wrapped = NULL;
   fn->scope = NULL;
@@ -84,7 +84,7 @@ void compose_fn_free(compose_fn_t *fn) {
  * It's `compose_fn_t::functions` and `compose_fn_t::length` fields must be correctly set.
  * @return generated code
  */
-DOT_PRIVATE char *composition_codegen(const char *rtype, const char *itype, compose_fn_t *fn) {
+DONT_PRIVATE char *composition_codegen(const char *rtype, const char *itype, compose_fn_t *fn) {
   assert(strcmp(rtype, itype) == 0);
   const char *template = ""
       "typedef %s rtype;"
@@ -118,7 +118,7 @@ DOT_PRIVATE char *composition_codegen(const char *rtype, const char *itype, comp
  * @param symbol_counts length of `symbols`
  * @return 0 if compile successes, -1 if error
  */
-DOT_PRIVATE int compile(compose_fn_t *fn, const char *code, const symbol_table_t *symbols, const int symbol_counts) {
+DONT_PRIVATE int compile(compose_fn_t *fn, const char *code, const symbol_table_t *symbols, const int symbol_counts) {
   TCCState *state = tcc_new();
   tcc_set_output_type(state, TCC_OUTPUT_MEMORY);
   int err = tcc_compile_string(state, code);

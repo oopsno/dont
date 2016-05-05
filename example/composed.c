@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "dot.h"
+#include "dont.h"
 
 int succ(int value) {
   return value + 1;
