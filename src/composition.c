@@ -1,14 +1,16 @@
-/** @file */
+/** @file
+ * Function composition
+ */
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <libtcc.h>
-#include "dot.h"
+#include "composition.h"
 #include "common.h"
 
 #if (defined(DOT_DEBUG))
-#include "composed_inner.h"
+#include "composition_inner.h"
 #endif
 
 #if (defined(__cplusplus))
@@ -82,7 +84,7 @@ void compose_fn_free(compose_fn_t *fn) {
  * It's `compose_fn_t::functions` and `compose_fn_t::length` fields must be correctly set.
  * @return generated code
  */
-DOT_PRIVATE char *dot_codegen(const char *rtype, const char *itype, compose_fn_t *fn) {
+DOT_PRIVATE char *composition_codegen(const char *rtype, const char *itype, compose_fn_t *fn) {
   assert(strcmp(rtype, itype) == 0);
   const char *template = ""
       "typedef %s rtype;"
@@ -139,7 +141,7 @@ compose_fn_t *compose_fn_construct(const char *rtype, const char *itype, void **
   compose_fn_t *fn = compose_fn_alloc();
   fn->length = notnull_length(functions);
   fn->functions = copy_functions(functions, fn->length);
-  char *code = dot_codegen(rtype, itype, fn);
+  char *code = composition_codegen(rtype, itype, fn);
   compile(fn, code, NULL, 0);
   free(code);
   return fn;

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
-#include "dot.h"
-#include "composed_inner.h"
+#include "composition.h"
+#include "composition_inner.h"
 
 TEST(Composed, notnull_length) {
   EXPECT_EQ(notnull_length(NULL), 0);
@@ -25,16 +25,16 @@ TEST(Composed, copy_functions) {
   EXPECT_NO_FATAL_FAILURE(free(duplicate));
 };
 
-TEST(Composed, codegen) {
+TEST(Composed, composition_codegen) {
   compose_fn_t *fn = compose_fn_alloc();
-  char *code = dot_codegen("int", "int", fn);
+  char *code = composition_codegen("int", "int", fn);
   free(code);
   compose_fn_free(fn);
 }
 
 TEST(Composed, compile) {
   compose_fn_t *fn = compose_fn_alloc();
-  char *code = dot_codegen("int", "int", fn);
+  char *code = composition_codegen("int", "int", fn);
   EXPECT_EQ(compile(fn, code, nullptr, 0), 0);
   EXPECT_NE(fn->scope, nullptr);
   EXPECT_NE(fn->wrapped, nullptr);
