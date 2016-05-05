@@ -1,3 +1,4 @@
+/** @file */
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -5,36 +6,62 @@
 #include <libtcc.h>
 #include "dot.h"
 
-static size_t notnull_length(void **array) {
+/**
+ * calculate length of a given function list.
+ *
+ * @param functions function pointers, always ends with NULL
+ * @return length of `functions`, NULL excluded
+ */
+static size_t notnull_length(void **functions) {
   size_t length = 0;
-  while (array != NULL && *array++ != NULL) {
-    length += 1;
+  if (functions != NULL) {
+    while (*functions++ != NULL) {
+      length += 1;
+    }
   }
   return length;
 }
 
-static void **copy_functions(void **functions, size_t count) {
-  if (functions == NULL || count == 0) {
+/**
+ * Duplicate function list.
+ *
+ * This ensures composed functions can be constructed from stack objects safely.
+ *
+ * @param functions function pointers to components, always ends with NULL, like `compose_fn_t::functions`
+ * @param length length of `functions`
+ * @return duplication of `functions`
+ */
+static void **copy_functions(void **functions, size_t length) {
+  if (functions == NULL || length == 0) {
     return NULL;
   }
-  void **duplication = malloc(sizeof(void *) * (count + 1));
+  void **duplication = malloc(sizeof(void *) * (length + 1));
   assert(duplication != NULL);
-  for (size_t i = 0; i <= count; i++) {
+  for (size_t i = 0; i <= length; i++) {
     duplication[i] = functions[i];
   }
   return duplication;
 }
 
-compose_fn_t *compose_fn_new() {
+compose_fn_t *compose_fn_alloc() {
   return malloc(sizeof(compose_fn_t));
 }
 
-void compose_fn_delete(compose_fn_t *fn) {
+void compose_fn_free(compose_fn_t *fn) {
   free(fn->scope);
   free(fn->functions);
   free(fn);
 }
 
+/**
+ * generate code for composed functions on the fly
+ *
+ * @param rtype return type of the composed function
+ * @param itype argument type of the composed function
+ * @param fn pointer to target `compose_fn_t` instance.
+ * It's `compose_fn_t::functions` and `compose_fn_t::length` fields must be correctly set.
+ * @return generated code
+ */
 static const char *dot_codegen(const char *rtype, const char *itype, compose_fn_t *fn) {
   assert(strcmp(rtype, itype) == 0);
   const char *template = ""
@@ -59,18 +86,31 @@ static const char *dot_codegen(const char *rtype, const char *itype, compose_fn_
   return rtv;
 }
 
+/**
+ * structure to record external symbols
+ */
 typedef struct {
-  const char *name;
-  void *address;
+  const char *name; /**< the name of the symbol(function) */
+  void *address;    /**< the address of the symbol */
 } symbol_table_t;
 
+/**
+ * compile a piece of code to executable binary on the fly by TCC
+ *
+ * @param fn pointer to target `compose_fn_t` instance.
+ * It's `compose_fn_t::functions` and `compose_fn_t::length` fields must be correctly set.
+ * @param code code to compile
+ * @param symbols `symbol_table_t`s for extern function used in `code`
+ * @param symbol_counts length of `symbols`
+ * @return 0 if compile successes, -1 if error
+ */
 static int compile(compose_fn_t *fn, const char *code, const symbol_table_t *symbols, const int symbol_counts) {
   TCCState *state = tcc_new();
   tcc_set_output_type(state, TCC_OUTPUT_MEMORY);
   int err = tcc_compile_string(state, code);
   if (err != 0) {
     fprintf(stderr, "Cannot compile code %s", code);
-    exit(-1);
+    return err;
   }
   for (int i = 0; i < symbol_counts; ++i) {
     tcc_add_symbol(state, symbols[i].name, symbols[i].address);
@@ -83,8 +123,8 @@ static int compile(compose_fn_t *fn, const char *code, const symbol_table_t *sym
   return 0;
 }
 
-compose_fn_t *dot_compose(const char *rtype, const char *itype, void **functions) {
-  compose_fn_t *fn = compose_fn_new();
+compose_fn_t *compose_fn_construct(const char *rtype, const char *itype, void **functions) {
+  compose_fn_t *fn = compose_fn_alloc();
   fn->length = notnull_length(functions);
   fn->functions = copy_functions(functions, fn->length);
   const char *code = dot_codegen(rtype, itype, fn);
