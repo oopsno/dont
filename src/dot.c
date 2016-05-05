@@ -4,7 +4,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libtcc.h>
+#include <dot.h>
+#include "common.h"
 #include "dot.h"
+
+#if (defined(DOT_DEBUG))
+#include "composed_inner.h"
+#endif
+
+#if (defined(__cplusplus))
+extern "C" {
+#endif
 
 /**
  * calculate length of a given function list.
@@ -12,7 +22,7 @@
  * @param functions function pointers, always ends with NULL
  * @return length of `functions`, NULL excluded
  */
-static size_t notnull_length(void **functions) {
+DOT_PRIVATE size_t notnull_length(void **functions) {
   size_t length = 0;
   if (functions != NULL) {
     while (*functions++ != NULL) {
@@ -31,7 +41,7 @@ static size_t notnull_length(void **functions) {
  * @param length length of `functions`
  * @return duplication of `functions`
  */
-static void **copy_functions(void **functions, size_t length) {
+DOT_PRIVATE void **copy_functions(void **functions, size_t length) {
   if (functions == NULL || length == 0) {
     return NULL;
   }
@@ -43,13 +53,24 @@ static void **copy_functions(void **functions, size_t length) {
   return duplication;
 }
 
-compose_fn_t *compose_fn_alloc() {
-  return malloc(sizeof(compose_fn_t));
+DOT_PRIVATE compose_fn_t *compose_fn_alloc() {
+  compose_fn_t *fn = (compose_fn_t *) malloc(sizeof(compose_fn_t));
+  fn->wrapped = NULL;
+  fn->scope = NULL;
+  fn->functions = NULL;
+  fn->length = 0;
+  return fn;
 }
 
 void compose_fn_free(compose_fn_t *fn) {
-  free(fn->scope);
-  free(fn->functions);
+  if (fn != NULL) {
+    if (fn->scope != NULL) {
+      free(fn->scope);
+    }
+    if (fn->functions != NULL) {
+      free(fn->functions);
+    }
+  }
   free(fn);
 }
 
@@ -62,7 +83,7 @@ void compose_fn_free(compose_fn_t *fn) {
  * It's `compose_fn_t::functions` and `compose_fn_t::length` fields must be correctly set.
  * @return generated code
  */
-static const char *dot_codegen(const char *rtype, const char *itype, compose_fn_t *fn) {
+DOT_PRIVATE char *dot_codegen(const char *rtype, const char *itype, compose_fn_t *fn) {
   assert(strcmp(rtype, itype) == 0);
   const char *template = ""
       "typedef %s rtype;"
@@ -87,14 +108,6 @@ static const char *dot_codegen(const char *rtype, const char *itype, compose_fn_
 }
 
 /**
- * structure to record external symbols
- */
-typedef struct {
-  const char *name; /**< the name of the symbol(function) */
-  void *address;    /**< the address of the symbol */
-} symbol_table_t;
-
-/**
  * compile a piece of code to executable binary on the fly by TCC
  *
  * @param fn pointer to target `compose_fn_t` instance.
@@ -104,7 +117,7 @@ typedef struct {
  * @param symbol_counts length of `symbols`
  * @return 0 if compile successes, -1 if error
  */
-static int compile(compose_fn_t *fn, const char *code, const symbol_table_t *symbols, const int symbol_counts) {
+DOT_PRIVATE int compile(compose_fn_t *fn, const char *code, const symbol_table_t *symbols, const int symbol_counts) {
   TCCState *state = tcc_new();
   tcc_set_output_type(state, TCC_OUTPUT_MEMORY);
   int err = tcc_compile_string(state, code);
@@ -127,7 +140,12 @@ compose_fn_t *compose_fn_construct(const char *rtype, const char *itype, void **
   compose_fn_t *fn = compose_fn_alloc();
   fn->length = notnull_length(functions);
   fn->functions = copy_functions(functions, fn->length);
-  const char *code = dot_codegen(rtype, itype, fn);
+  char *code = dot_codegen(rtype, itype, fn);
   compile(fn, code, NULL, 0);
+  free(code);
   return fn;
 }
+
+#if (defined(__cplusplus))
+}
+#endif

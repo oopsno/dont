@@ -5,6 +5,10 @@
 #include <stdarg.h>
 #include <stddef.h>
 
+#if (defined(__cplusplus))
+extern "C" {
+#endif
+
 /** \typedef void (*any_function_t)(void)
  * pointer to function (void) returning void
  */
@@ -20,7 +24,7 @@ typedef struct {
 } compose_fn_t;
 
 /**
- * alloc an instance of compose_fn_t
+ * alloc and initialize an instance of compose_fn_t
  * @return pointer to an newly allocated `compose_fn_t` instance
  */
 compose_fn_t *compose_fn_alloc();
@@ -71,5 +75,9 @@ void compose_fn_free(compose_fn_t *fn);
  */
 #define COMPOSE_FREE(fn) \
   (compose_fn_free(fn))
+
+#if (defined(__cplusplus))
+}
+#endif
 
 #endif //DOT_C_DOT_H
