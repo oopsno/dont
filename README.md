@@ -1,6 +1,7 @@
 # dont
 `dont` is a toy library supporting functional programming in C99, with test codes writes in `C++11`.
-The name `dont` means `DO NOT USE THIS LABRARY`
+
+The name `dont` means `DO NOT USE THIS LIBRARY`
 
 ## Build
 You need 
