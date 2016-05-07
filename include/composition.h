@@ -1,8 +1,7 @@
 /** @file
  * Function composition
  */
-#ifndef DONT_COMPOSITION_H
-#define DONT_COMPOSITION_H
+#pragma once
 
 #include <stdarg.h>
 #include <stddef.h>
@@ -81,5 +80,3 @@ void compose_fn_free(compose_fn_t *fn);
 #if (defined(__cplusplus))
 }
 #endif
-
-#endif //DONT_COMPOSITION_H

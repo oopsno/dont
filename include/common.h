@@ -1,5 +1,4 @@
-#ifndef DONT_COMMON_H
-#define DONT_COMMON_H
+#pragma once
 
 #if (!defined(NDEBUG) && !defined(DONT_DEBUG))
 #define DONT_DEBUG
@@ -20,5 +19,3 @@ typedef struct {
   const char *name; /**< the name of the symbol(function) */
   void *address;    /**< the address of the symbol */
 } symbol_table_t;
-
-#endif //DONT_COMMON_H

@@ -1,5 +1,4 @@
-#ifndef DONT_COMPOSITION_INNER_H
-#define DONT_COMPOSITION_INNER_H
+#pragma once
 
 #include "common.h"
 
@@ -15,5 +14,3 @@ DONT_PRIVATE int compile(compose_fn_t *fn, const char *code, const symbol_table_
 #if (defined(__cplusplus))
 }
 #endif
-
-#endif //DONT_COMPOSITION_INNER_H

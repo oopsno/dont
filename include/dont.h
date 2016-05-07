@@ -1,6 +1,4 @@
-#ifndef DONT_DOT_H
-#define DONT_DOT_H
+#pragma once
 
 #include "composition.h"
 
-#endif //DONT_DOT_H
