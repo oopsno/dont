@@ -16,6 +16,7 @@ extern "C" {
 #define DontObject_HEADER DontObject object_header
 
 #define $$(object) (object->value)
+#define $call(object, method, ...) (((void *(*)(...))($type(object)->methods->method))(object, __VA_ARGS__))
 #define $new(dtype, ...) DOBJ_CTOR(dtype) (__VA_ARGS__)
 #define $size(object) (((DontObject *) object)->size)
 #define $type(object) (((DontObject *) object)->type)

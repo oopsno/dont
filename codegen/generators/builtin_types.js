@@ -92,6 +92,19 @@ TEST(BuiltinTypesLogicMethods, ${dtype}) {
   EXPECT_TRUE($bool($new(${dtype}, 1))); 
   EXPECT_FALSE($bool($new(${dtype}, 0))); 
 }
+
+TEST(BuiltinTypesArithmeticMethods, ${dtype}) {
+  ${dtype} *lhs = $new(${dtype}, 40);
+  ${dtype} *rhs = $new(${dtype},  2);
+  ${dtype} *sum = (${dtype} *) $call(lhs, add, rhs);
+  ${dtype} *dif = (${dtype} *) $call(lhs, sub, rhs);
+  ${dtype} *prd = (${dtype} *) $call(lhs, mul, rhs);
+  ${dtype} *rem = (${dtype} *) $call(lhs, div, rhs);
+  EXPECT_EQ($$(sum), 42); 
+  EXPECT_EQ($$(dif), 38); 
+  EXPECT_EQ($$(prd), 80); 
+  EXPECT_EQ($$(rem), 20); 
+}
 `;
 }
 
