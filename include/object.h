@@ -47,10 +47,6 @@ struct _type_object_t {
   const DontTypeBasicMethods *methods;
 };
 
-struct _logic_methods_t {
-  intptr_t to_bool;
-};
-
 void *_dont_object_create(size_t size, void *ctor, ...);
 bool _dont_object_to_bool(DontObject *object);
 
