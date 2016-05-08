@@ -19,7 +19,7 @@ void *_dont_object_create(size_t size, void *ctor, ...) {
 }
 
 bool _dont_object_to_bool(DontObject *object) {
-  return ((bool (*)(DontObject *)) ($type(object)->logic_methods->to_bool))(object);
+  return ((bool (*)(DontObject *)) ($type(object)->methods->to_bool))(object);
 }
 
 #if (defined(__cplusplus))

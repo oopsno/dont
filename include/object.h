@@ -14,25 +14,27 @@ extern "C" {
 #endif
 
 #define DontObject_HEADER DontObject object_header
-#define $new(dtype, ...) \
-  (dtype *) _dont_object_create(sizeof(dtype), (void *) _dont_##dtype##_ctor, __VA_ARGS__)
 
-#define $size(object) \
-  (((DontObject *) objcet)->size)
+#define $$(object) (object->value)
+#define $new(dtype, ...) DOBJ_CTOR(dtype) (__VA_ARGS__)
+#define $size(object) (((DontObject *) object)->size)
+#define $type(object) (((DontObject *) object)->type)
+#define $bool(object) (_dont_object_to_bool((DontObject *)object))
 
-#define $type(object) \
-  (((DontObject *) object)->type)
-
-#define $$(object) \
-  (object->value)
-
-#define $bool(object) \
-  (_dont_object_to_bool((DontObject *)object))
+#define DOBJ_STRUCTURE(Type) _dont_##Type##_struct
+#define DOBJ_CTOR(Type) _dont_##Type##_ctor
+#define DOBJ_CTOR_DEF(Type) Type *_dont_##Type##_ctor(Type *self, va_list args)
+#define DOBJ_TYPEOBJ(Type) _dont_##Type##_type_obj
+#define DOBJ_METHODS_STT(Type) _dont_##Type##_basic_methods
+#define DOBJ_METHOD(Type, n) _dont_##Type##_basic_methods_##n
+#define DOBJ_METHOD_DEF_SELF(Type, n) DontObject *DOBJ_METHOD(Type, n) (Type *self)
+#define DOBJ_METHOD_DEF_BIN(Type, n) DontObject *DOBJ_METHOD(Type, n) (Type *lhs, Type *rhs)
 
 typedef struct _type_object_t DontTypeObject;
-typedef struct _object_methods_t DontTypeObjectMethods;
-typedef struct _arithmetic_methods_t DontTypeArithmeticMethods;
-typedef struct _logic_methods_t DontTypeLogicMethods;
+typedef struct {
+  void *to_bool;
+  void *add, *sub, *mul, *div, *mod;
+} DontTypeBasicMethods;
 
 typedef struct _DontObject {
   DontTypeObject *type;
@@ -41,9 +43,7 @@ typedef struct _DontObject {
 
 struct _type_object_t {
   const char *name;
-  const DontTypeObjectMethods *object_methods;
-  const DontTypeLogicMethods *logic_methods;
-  const DontTypeArithmeticMethods *arithmetic_methods;
+  const DontTypeBasicMethods *methods;
 };
 
 struct _object_methods_t {

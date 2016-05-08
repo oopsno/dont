@@ -1,61 +1,60 @@
 const generator = require('../generator');
 
 function genStructureDefine(dtype, ctype) {
-    return `typedef struct _dont_${dtype}_struct {
+    return `typedef struct DOBJ_STRUCTURE(${dtype}) {
   DontObject_HEADER;
   ${ctype} value;
 } ${dtype};`
 }
 
 function genDeclare(dtype, ctype) {
-    return `void _dont_${dtype}_ctor(${dtype} *object, va_list value);`
+    return `${dtype} *DOBJ_CTOR(${dtype})(${ctype} value);`
 }
 
 function genDebugDeclare(dtype, ctype) {
-    return `extern DontTypeObject _dont_${dtype}_type_obj;
-extern DontTypeObject _dont_${dtype}_type_obj;
-extern DontTypeArithmeticMethods _dont_${dtype}_arithmetic_methods;
+    return `extern DontTypeObject DOBJ_TYPEOBJ(${dtype});
+extern DontTypeBasicMethods DOBJ_METHODS_STT(${dtype});
 `;
 }
 
 function genTypeObject(dtype, ctype) {
-    return `DONT_PRIVATE DontTypeObject _dont_${dtype}_type_obj = { 
-  .name = "${ctype}",
-  .arithmetic_methods = &_dont_${dtype}_arithmetic_methods,
-  .logic_methods = &_dont_${dtype}_logic_methods
-};
-
-void _dont_${dtype}_ctor(${dtype} *object, va_list args) {
-  object->object_header.type = &_dont_${dtype}_type_obj;
-  object->object_header.size = sizeof(${dtype});
-  object->value = va_arg(args, ${ctype});
+    return `DONT_PRIVATE DontTypeObject DOBJ_TYPEOBJ(${dtype}) = {
+  .name = "${dtype}",
+  .methods = &DOBJ_METHODS_STT(${dtype})
 };`;
 }
 
-function genLogicMethods(dtype, ctype) {
-    return `bool _dont_${dtype}_logic_methods_to_bool(${dtype} *self) {
+function genMethods(dtype, ctype) {
+    const methodFields = [['add', '+'], ['sub', '-'], ['mul', '*'], ['div', '/']];
+    
+    function genMethod(n, op) {
+        return `${dtype} *DOBJ_METHOD(${dtype}, ${n})(${dtype} *lhs, ${dtype} *rhs) {
+  return $new(${dtype}, $$(lhs) ${op} $$(rhs));
+}`
+    }
+    
+    function genField(n) {
+        return `.${n} = (void *) DOBJ_METHOD(${dtype}, ${n})`
+    }
+
+     return `${dtype} *DOBJ_CTOR(${dtype})(${ctype} value) {
+  ${dtype} *self = (${dtype} *) malloc(sizeof(${dtype})); 
+  $type(self) = &_dont_${dtype}_type_obj;
+  $size(self) = sizeof(${dtype});
+  $$(self) = value;
+  return self;
+};
+
+${methodFields.map(xs => genMethod(...xs)).join('\n')}
+ 
+bool DOBJ_METHOD(${dtype}, to_bool)(${dtype} *self) {
   return $$(self) != (${ctype}) 0;
 }
 
-DONT_PRIVATE DontTypeLogicMethods _dont_${dtype}_logic_methods = {
-  .to_bool = (intptr_t) _dont_${dtype}_logic_methods_to_bool
-};
-`
-}
-
-function genArithmeticMethods(dtype, ctype) {
-    return `${dtype}* _dont_${dtype}_arithmetic_methods_add(${dtype} *lhs, ${dtype} *rhs) {
-  return $new(${dtype}, lhs->value + rhs->value);
-}
-
-${dtype}* _dont_${dtype}_arithmetic_methods_sub(${dtype} *lhs, ${dtype} *rhs) {
-  return $new(${dtype}, lhs->value - rhs->value);
-}
- 
-DONT_PRIVATE DontTypeArithmeticMethods _dont_${dtype}_arithmetic_methods = {
-  .add = (intptr_t) _dont_${dtype}_arithmetic_methods_add,
-  .sub = (intptr_t) _dont_${dtype}_arithmetic_methods_sub
-};`
+DONT_PRIVATE DontTypeBasicMethods DOBJ_METHODS_STT(${dtype}) = {
+  ${methodFields.map(([n]) => genField(n)).join(',\n  ')},
+  .to_bool = DOBJ_METHOD(${dtype}, to_bool)
+};`;
 }
 
 function genGTest(dtype, ctype) {
@@ -112,13 +111,13 @@ const types = int_tpls.reduce((xs, tpl) => xs.concat(int_bits.map(tpl)), []).con
 
 function generate() {
     const hIncludes = ['common.h', 'object.h', 'stddef.h', 'stdint.h', 'stdbool.h'];
-    const cIncludes = ['builtin_types.h', 'stddef.h', 'stdint.h', 'stdbool.h'];
+    const cIncludes = ['builtin_types.h', 'stddef.h', 'stdint.h', 'stdbool.h', 'stdlib.h'];
     const tIncludes = ['gtest/gtest.h', 'limits', 'builtin_types.h'];
     const h = generator.genHeader('', hIncludes,
         generateOnTypes(types, [genStructureDefine, genDeclare]),
         generateOnTypes(types, [genDebugDeclare]));
     const c = generator.genSource('', cIncludes,
-        generateOnTypes(types, [genArithmeticMethods, genLogicMethods, genTypeObject]));
+        generateOnTypes(types, [genMethods, genTypeObject]));
     const t = generator.genSource('', tIncludes,
         generateOnTypes(types, [genGTest]));
     return new Map([
