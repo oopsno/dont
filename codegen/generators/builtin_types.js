@@ -100,19 +100,20 @@ function generateOnTypes(types, functions) {
     return functions.map(fn => types.map(t => fn(...t)).join('\n\n')).join('\n\n');
 }
 
+const int_bits = [8, 16, 32, 64, 'max'];
+const int_tpls = [
+    b => [`i${b}_t`, `int${b}_t`],
+    b => [`ui${b}_t`, `uint${b}_t`]
+];
+const types = int_tpls.reduce((xs, tpl) => xs.concat(int_bits.map(tpl)), []).concat([
+    ['f32_t', 'float'],
+    ['f64_t', 'double']
+]);
+
 function generate() {
     const hIncludes = ['common.h', 'object.h', 'stddef.h', 'stdint.h', 'stdbool.h'];
     const cIncludes = ['builtin_types.h', 'stddef.h', 'stdint.h', 'stdbool.h'];
     const tIncludes = ['gtest/gtest.h', 'limits', 'builtin_types.h'];
-    const int_bits = [8, 16, 32, 64, 'max'];
-    const int_tpls = [
-        b => [`i${b}_t`, `int${b}_t`],
-        b => [`ui${b}_t`, `uint${b}_t`]
-    ];
-    const types = int_tpls.reduce((xs, tpl) => xs.concat(int_bits.map(tpl)), []).concat([
-        ['f32_t', 'float'],
-        ['f64_t', 'double']
-    ]);
     const h = generator.genHeader('', hIncludes,
         generateOnTypes(types, [genStructureDefine, genDeclare]),
         generateOnTypes(types, [genDebugDeclare]));
@@ -128,3 +129,4 @@ function generate() {
 }
 
 exports.generate = generate;
+exports.types = types;
