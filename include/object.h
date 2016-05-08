@@ -47,15 +47,6 @@ struct _type_object_t {
   const DontTypeBasicMethods *methods;
 };
 
-struct _object_methods_t {
-  intptr_t type;
-};
-
-struct _arithmetic_methods_t {
-  intptr_t add;
-  intptr_t sub;
-};
-
 struct _logic_methods_t {
   intptr_t to_bool;
 };
