@@ -8,7 +8,8 @@ function genStructureDefine(dtype, ctype) {
 }
 
 function genDeclare(dtype, ctype) {
-    return `${dtype} *DOBJ_CTOR(${dtype})(${ctype} value);`
+    return `${dtype} *DOBJ_CTOR(${dtype})(${dtype} *object, ${ctype} value);
+void DOBJ_DTOR(${dtype})(DontObject *object);`
 }
 
 function genDebugDeclare(dtype, ctype) {
@@ -20,6 +21,7 @@ extern DontTypeBasicMethods DOBJ_METHODS_STT(${dtype});
 function genTypeObject(dtype, ctype) {
     return `DONT_PRIVATE DontTypeObject DOBJ_TYPEOBJ(${dtype}) = {
   .name = "${dtype}",
+  .dtor = DOBJ_DTOR(${dtype}),
   .methods = &DOBJ_METHODS_STT(${dtype})
 };`;
 }
@@ -37,13 +39,17 @@ function genMethods(dtype, ctype) {
         return `.${n} = (void *) DOBJ_METHOD(${dtype}, ${n})`
     }
 
-     return `${dtype} *DOBJ_CTOR(${dtype})(${ctype} value) {
-  ${dtype} *self = (${dtype} *) malloc(sizeof(${dtype})); 
+     return `${dtype} *DOBJ_CTOR(${dtype})(${dtype} *self, ${ctype} value) {
+  if (self == NULL) {
+    self = (${dtype} *) malloc(sizeof(${dtype})); 
+  }
   $type(self) = &_dont_${dtype}_type_obj;
   $size(self) = sizeof(${dtype});
   $$(self) = value;
   return self;
 };
+
+void DOBJ_DTOR(${dtype})(DontObject *object) { }
 
 ${methodFields.map(xs => genMethod(...xs)).join('\n')}
  
@@ -86,11 +92,16 @@ TEST(BuiltinTypesBound, ${dtype}) {
     EXPECT_EQ(c_min, $$(min)) << "${dtype} cannot fit ${ctype}'s min value";
   }
   EXPECT_EQ(c_zro, $$(zro)) << "${dtype} cannot fit zero";
+  $del(max);
+  $del(min);
+  $del(zro);
 }
 
 TEST(BuiltinTypesLogicMethods, ${dtype}) {
-  EXPECT_TRUE($bool($new(${dtype}, 1))); 
-  EXPECT_FALSE($bool($new(${dtype}, 0))); 
+  $var(${dtype}, zero, 0);
+  $var(${dtype}, one,  1);
+  EXPECT_TRUE($bool(&one)); 
+  EXPECT_FALSE($bool(&zero)); 
 }
 
 TEST(BuiltinTypesArithmeticMethods, ${dtype}) {
