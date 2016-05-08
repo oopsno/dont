@@ -1,19 +1,26 @@
 # dont
-`dont` is a toy library supporting functional programming in C99, with test codes writes in `C++11`.
+
+`dont` is a toy library supporting functional programming in C99,
+with test codes writes in `C++11`.
 
 The name `dont` means `DO NOT USE THIS LIBRARY`
 
 ## Build
 You need 
 
-+ A compiler with full C99 support
-+ libtcc
++ `CMake` 2.6 or later
++ A C compiler with full C99 support
++ A C++ compiler with full C++11 support
++ `libtcc`
++ `gtest`
++ `Node.js` 6.1.0 or later 
 
 to build `dont`. 
 
 ## Features
 
 + Function composition
++ A toy type system inspired by CPython
 
 ## Examples
 
