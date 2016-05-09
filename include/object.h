@@ -17,7 +17,7 @@ extern "C" {
 
 #define $$(object) (object->value)
 #define $call(object, method, ...) (((void *(*)(...))($type(object)->methods->method))(object, __VA_ARGS__))
-#define $var(dtype, name, ...) dtype name; DOBJ_CTOR(dtype) (&name, ##__VA_ARGS__)
+#define $let(dtype, name, ...) dtype name; DOBJ_CTOR(dtype) (&name, ##__VA_ARGS__)
 #define $new(dtype, ...) DOBJ_CTOR(dtype) (NULL, __VA_ARGS__)
 #define $del(object)  (_dont_object_delete((DontObject *) object))
 #define $dtor(object) ($type(object)->dtor)

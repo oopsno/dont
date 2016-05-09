@@ -73,6 +73,7 @@ TEST(BuiltinTypesConstructor, ${dtype}) {
   ${dtype} *value = $new(${dtype}, ${ctype}(0));
   EXPECT_EQ(&_dont_${dtype}_type_obj, value->object_header.type) << "Constructor did not initialize field 'type'";
   EXPECT_EQ(sizeof(${dtype}), value->object_header.size) << "Constructor did not initialize field 'size'";
+  $del(value);
 }
 
 TEST(BuiltinTypesBound, ${dtype}) {
@@ -98,8 +99,8 @@ TEST(BuiltinTypesBound, ${dtype}) {
 }
 
 TEST(BuiltinTypesLogicMethods, ${dtype}) {
-  $var(${dtype}, zero, 0);
-  $var(${dtype}, one,  1);
+  $let(${dtype}, zero, 0);
+  $let(${dtype}, one,  1);
   EXPECT_TRUE($bool(&one)); 
   EXPECT_FALSE($bool(&zero)); 
 }
