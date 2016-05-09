@@ -116,6 +116,12 @@ TEST(BuiltinTypesArithmeticMethods, ${dtype}) {
   EXPECT_EQ($$(dif), 38); 
   EXPECT_EQ($$(prd), 80); 
   EXPECT_EQ($$(rem), 20); 
+  $del(lhs);
+  $del(rhs);
+  $del(sum);
+  $del(dif);
+  $del(prd);
+  $del(rem);
 }
 `;
 }
