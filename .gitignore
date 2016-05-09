@@ -47,3 +47,11 @@ docs/
 
 # build
 build/
+
+# Code Generator & Generated code
+codegen/type_traits/build/
+codegen/type_traits/tables.cpp
+include/builtin_types.h
+src/builtin_types.c
+test/builtin_types.cpp
+
