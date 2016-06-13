@@ -1,10 +1,10 @@
 const generator = require('../generator');
 
 function genStructureDefine(dtype, ctype) {
-    return `typedef struct DOBJ_STRUCTURE(${dtype}) {
+    return `DOBJ_STRUCTURE(${dtype}) {
   DontObject_HEADER;
   ${ctype} value;
-} ${dtype};`
+};`
 }
 
 function genDeclare(dtype, ctype) {

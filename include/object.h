@@ -25,7 +25,10 @@ extern "C" {
 #define $type(object) (((DontObject *) object)->type)
 #define $bool(object) (_dont_object_to_bool((DontObject *)object))
 
-#define DOBJ_STRUCTURE(Type) _dont_##Type##_struct
+#define _DOBJ_STRUCT_NAME(Type) _dont_##Type##_struct
+#define DOBJ_STRUCTURE(Type) \
+  typedef struct _DOBJ_STRUCT_NAME(Type) Type; \
+  struct _DOBJ_STRUCT_NAME(Type)
 #define DOBJ_CTOR(Type) _dont_##Type##_ctor
 #define DOBJ_DTOR(Type) _dont_##Type##_dtor
 #define DOBJ_TYPEOBJ(Type) _dont_##Type##_type_obj
